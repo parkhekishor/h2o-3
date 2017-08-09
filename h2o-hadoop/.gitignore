@@ -1,0 +1,4 @@
+# Tests
+tests/results
+tests/testsfile.txt
+!../docker/hadoop/docker/common/bin

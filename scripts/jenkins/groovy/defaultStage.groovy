@@ -2,7 +2,7 @@ def call(final pipelineContext, final stageConfig) {
   def insideDocker = load('h2o-3/scripts/jenkins/groovy/insideDocker.groovy')
   def makeTarget = load('h2o-3/scripts/jenkins/groovy/makeTarget.groovy')
 
-  def buildEnv = pipelineContext.getBuildConfig().getBuildEnv() + ["PYTHON_VERSION=${stageConfig.pythonVersion}", "R_VERSION=${stageConfig.rVersion}"]
+  def buildEnv = pipelineContext.getBuildConfig().getBuildEnv(buildConfig) + ["PYTHON_VERSION=${stageConfig.pythonVersion}", "R_VERSION=${stageConfig.rVersion}"]
 
   insideDocker(buildEnv, stageConfig.image, pipelineContext.getBuildConfig().DOCKER_REGISTRY, stageConfig.timeoutValue, 'MINUTES') {
     // NOTES regarding changes detection and rerun:
@@ -50,6 +50,7 @@ def call(final pipelineContext, final stageConfig) {
           }
 
           makeTarget {
+            customBuildAction = stageConfig.customBuildAction
             target = stageConfig.target
             hasJUnit = stageConfig.hasJUnit
             h2o3dir = h2oFolder
