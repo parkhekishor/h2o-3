@@ -1,8 +1,7 @@
 import groovy.json.JsonSlurper
 
 def call(final String buildinfoPath) {
-    // FIXME
-    def final DOCKERIZED_DISTRIBUTIONS = ['cdh'] // ['cdh', 'hdp']
+    def final DOCKERIZED_DISTRIBUTIONS = ['cdh', 'hdp']
 
     sh "sed -i 's/SUBST_BUILD_TIME_MILLIS/\"SUBST_BUILD_TIME_MILLIS\"/g' ${buildinfoPath}"
     sh "sed -i 's/SUBST_BUILD_NUMBER/\"SUBST_BUILD_NUMBER\"/g' ${buildinfoPath}"

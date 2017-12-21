@@ -26,10 +26,3 @@ for x in $(ls . | sort -n); do
   sync
   ./${x}
 done
-
-if [[ $(echo ${ENTER_BASH} | tr -s '[:upper:]' '[:lower:]') == 'true' ]]; then
-  cd /home/h2o
-  set +e
-  /bin/bash
-  set -e
-fi

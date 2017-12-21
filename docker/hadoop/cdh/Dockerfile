@@ -9,7 +9,7 @@ ARG PATH_PREFIX='.'
 ARG DEFAULT_USER_UID=2117
 ARG PYTHON_VERSIONS='2.7'
 
-ENV DISTRIBUTION='cdh' VERSION=$VERSION HADOOP_CONF_DIR='/etc/hadoop/conf.pseudo' MASTER='yarn-client'≈
+ENV DISTRIBUTION='cdh' VERSION=$VERSION HADOOP_CONF_DIR='/etc/hadoop/conf.pseudo' MASTER='yarn-client'
 
 # Prepare Cloudera repository
 RUN echo "# Packages for Cloudera's Distribution for Hadoop, Version 5, on Ubuntu 14.04 amd64\n\

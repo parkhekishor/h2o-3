@@ -1,8 +1,6 @@
 #! /usr/bin/groovy
-import groovy.json.JsonSlurper
 
-// FIXME
-def final NODE_LABEL = 'mr-0xg4' //'docker && !mr-0xc8'
+def final NODE_LABEL = 'docker && !mr-0xc8'
 final String DOCKER_STASH = 'h2o-3-hadoop-docker-stash'
 
 
@@ -10,7 +8,7 @@ properties(
     [
         parameters(
             [
-                string(defaultValue: 'mr/ita/149-hadoop-dockers', description: 'Branch to checkout', name: 'gitBranch'),
+                string(defaultValue: 'master', description: 'Branch to checkout', name: 'gitBranch'),
                 string(name: 'dockerRegistry', defaultValue: 'docker.h2o.ai')
             ]
         )
@@ -54,6 +52,15 @@ parallel(distributionsToBuild.collectEntries{distribution ->
                             --build-arg PATH_PREFIX=hadoop/${distribution.name} \
                             --build-arg VERSION=${distribution.version} .
                     """
+                    }
+                }
+                stage ("Publish ${distribution.name.toUpperCase()} ${distribution.version}") {
+                    withCredentials([usernamePassword(credentialsId: "${params.dockerRegistry}", usernameVariable: 'REGISTRY_USERNAME', passwordVariable: 'REGISTRY_PASSWORD')]) {
+                        sh """
+                          docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD ${params.dockerRegistry}
+                          docker push ${IMAGE_NAME_PREFIX}-${distribution.name}-${distribution.version}:${currentBuild.number}
+                        """
+                        echo "###### Docker image ${IMAGE_NAME_PREFIX}-${distribution.name}-${distribution.version}:${currentBuild.number} built and pushed. ######"
                     }
                 }
             }
