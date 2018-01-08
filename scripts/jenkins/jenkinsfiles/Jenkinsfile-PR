@@ -31,7 +31,7 @@ withCustomCommitStates(scm, 'h2o-ops-personal-auth-token', 'H2O-3 Pipeline') {
           }
 
           def prepareH2O3 = load('h2o-3/scripts/jenkins/groovy/prepareH2O3.groovy')
-          pipelineContext = prepareH2O3(scmEnv, 'MODE_PR', false)
+          pipelineContext = prepareH2O3(scmEnv, 'MODE_HADOOP', false)
 
           pipelineContext.getBuildConfig().setJobProperties(this)
 

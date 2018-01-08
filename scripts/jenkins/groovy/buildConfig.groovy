@@ -25,7 +25,6 @@ class BuildConfig {
   public static final String COMPONENT_R = 'r'
   public static final String COMPONENT_JS = 'js'
   public static final String COMPONENT_JAVA = 'java'
-  public static final String COMPONENT_HADOOP = 'java'
   // Use to indicate, that the stage is not component dependent such as MOJO Compatibility Test,
   // always run
   public static final String COMPONENT_ANY = 'none'
@@ -54,15 +53,16 @@ class BuildConfig {
     (COMPONENT_R): false,
     (COMPONENT_JS): false,
     (COMPONENT_JAVA): false,
-    (COMPONENT_HADOOP): true,
     (COMPONENT_ANY): true
   ]
 
-  void initialize(final context, final String mode, final String commitMessage, final List<String> changes, final boolean ignoreChanges, final boolean buildHadoop) {
+  void initialize(final context, final String mode, final String commitMessage, final List<String> changes,
+                  final boolean ignoreChanges, final boolean buildHadoop, final List<String> distributionsToBuild) {
     this.mode = mode
     this.nodeLabel = nodeLabel
     this.commitMessage = commitMessage
     this.buildHadoop = buildHadoop
+    this.hadoopDistributionsToBuild = distributionsToBuild
     if (ignoreChanges) {
       markAllComponentsForTest()
     } else {
@@ -108,10 +108,6 @@ class BuildConfig {
     return buildHadoop
   }
 
-  void setSupportedHadoopDistributions(final List distributionsToBuild) {
-    this.hadoopDistributionsToBuild = distributionsToBuild
-  }
-
   List getSupportedHadoopDistributions() {
     return hadoopDistributionsToBuild
   }
@@ -146,7 +142,6 @@ class BuildConfig {
     markAllComponentsForSkip()
 
     changesMap[COMPONENT_ANY] = true
-    changesMap[COMPONENT_HADOOP] = true
 
     for (change in changes) {
       if (change.startsWith('h2o-py/') || change == 'h2o-bindings/bin/gen_python.py') {
@@ -169,7 +164,7 @@ class BuildConfig {
 
   private void markAllComponentsForSkip() {
     changesMap.each { k,v ->
-      changesMap[k] = k == COMPONENT_ANY || k == COMPONENT_HADOOP
+      changesMap[k] = k == COMPONENT_ANY
     }
   }
 
