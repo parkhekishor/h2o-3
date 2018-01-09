@@ -155,11 +155,7 @@ public class NetworkInit {
       }
     }
 
-    // Read a flatfile of allowed nodes
-    if (embeddedConfigFlatfile != null)
-      H2O.setFlatfile(parseFlatFileFromString(embeddedConfigFlatfile));
-    else 
-      H2O.setFlatfile(parseFlatFile(H2O.ARGS.flatfile));
+    H2O.setFlatfile(getInitFlatFile(embeddedConfigFlatfile));
 
     // All the machines has to agree on the same multicast address (i.e., multicast group)
     // Hence use the cloud name to generate multicast address
@@ -176,6 +172,34 @@ public class NetworkInit {
       Log.throwErr(e);
     }
     H2O.CLOUD_MULTICAST_PORT = NetworkUtils.getMulticastPort(hash);
+  }
+
+  private static Set<H2ONode> getInitFlatFile(String embeddedConfigFlatfile) {
+    Set<H2ONode> flatfile = null;
+    // Read a flatfile of allowed nodes. In case of client, always use just a single node.
+    if (embeddedConfigFlatfile != null) {
+      if (H2O.ARGS.client) {
+        HashSet<H2ONode> h2oNodes = parseFlatFileFromString(embeddedConfigFlatfile); // this method can't return null
+        if (h2oNodes.size() == 0) {
+          throw new RuntimeException("EmbeddedConfigFlatfile for the client node needs to contain at least 1 node!");
+        }
+        flatfile = new HashSet<>();
+        flatfile.add(h2oNodes.iterator().next());
+      } else {
+        flatfile = parseFlatFileFromString(embeddedConfigFlatfile);
+      }
+    } else {
+      if (H2O.ARGS.client) {
+        HashSet<H2ONode> h2oNodes = parseFlatFile(H2O.ARGS.flatfile);
+        if (h2oNodes != null && h2oNodes.size() >= 1) {
+          flatfile = new HashSet<>();
+          flatfile.add(h2oNodes.iterator().next());
+        }
+      } else {
+        flatfile = parseFlatFile(H2O.ARGS.flatfile);
+      }
+    }
+    return flatfile;
   }
 
   /**
@@ -256,7 +280,7 @@ public class NetworkInit {
       // Hideous O(n) algorithm for broadcast - avoid the memory allocation in
       // this method (since it is heavily used)
 
-      HashSet<H2ONode> nodes = H2O.getFlatfile();
+      Set<H2ONode> nodes = H2O.getFlatfile();
       nodes.addAll(water.Paxos.PROPOSED.values());
       bb.mark();
       for( H2ONode h2o : nodes ) {
