@@ -66,18 +66,18 @@ public abstract class Paxos {
 
     // I am not client but received client heartbeat in flatfile mode.
     // Means that somebody is trying to connect to this cloud.
-    // => update list of static hosts (it needs clean up)
+    // => update list of static hosts
     if (!H2O.ARGS.client && H2O.isFlatfileEnabled()
-         && h2o._heartbeat._client
-         && !H2O.isNodeInFlatfile(h2o)) {
-      // Extend static list of nodes to multicast to propagate information to client
-      H2O.addNodeToFlatfile(h2o);
-      H2O.reportClient(h2o);
-      // A new client `h2o` is connected so we broadcast it around to other nodes
-      // Note: this could cause a temporary flood of messages since the other
-      // nodes will later inform about the connected client as well.
-      // Note: It would be helpful to have a control over flatfile-based multicast to inject a small wait.
+            && h2o._heartbeat._client
+            && !H2O.isNodeInFlatfile(h2o)) {
+
+      // A new client `h2o` was reported to this node so we propagate this information to all other nodes as well (to this
+      // node as well). H2O client is always reported in case of flatfile to just a single H2O node so we can be sure
+      // there are no concurrent messages like this
+
+      // Distribute the client info, to me as well
       UDPClientEvent.ClientEvent.Type.CONNECT.broadcast(h2o);
+
     } else if (H2O.ARGS.client
                && H2O.isFlatfileEnabled()
                && !H2O.isNodeInFlatfile(h2o)) {
@@ -138,6 +138,11 @@ public abstract class Paxos {
     Paxos.class.notifyAll(); // Also, wake up a worker thread stuck in DKV.put
     Paxos.print("Announcing new Cloud Membership: ", H2O.CLOUD._memary);
     Log.info("Cloud of size ", H2O.CLOUD.size(), " formed ", H2O.CLOUD.toString());
+    if(H2O.isFlatfileEnabled()) {
+      for (H2ONode n : H2O.getFlatfile()) {
+        Log.info("Flatfile: " + n);
+      }
+    }
     H2O.notifyAboutCloudSize(H2O.SELF_ADDRESS, H2O.API_PORT, H2O.CLOUD.size());
     return 0;
   }

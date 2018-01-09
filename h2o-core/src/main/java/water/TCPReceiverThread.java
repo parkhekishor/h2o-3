@@ -102,6 +102,7 @@ public class TCPReceiverThread extends Thread {
         switch( chanType ) {
         case TCP_SMALL:
           H2ONode h2o = H2ONode.intern(inetAddress, port);
+          Log.info("Received msg from " + h2o + " hb " + h2o._heartbeat._cloud_name_hash);
           new UDP_TCP_ReaderThread(h2o, wrappedSocket).start();
           break;
         case TCP_BIG:
