@@ -431,16 +431,18 @@ public abstract class Model<M extends Model<M,P,O>, P extends Model.Parameters, 
   }
 
   public static class InteractionSpec extends Iced {
-    public String[] _columns;
+    private String[] _columns;
 
-    @Deprecated
-    public InteractionSpec(String[] _columns) {
-      this._columns = _columns;
+    private InteractionSpec(String[] columns) {
+      _columns = columns;
+    }
+
+    public static InteractionSpec allPairwise(String[] columns) {
+      return columns != null ? new InteractionSpec(columns) : null;
     }
 
     public Model.InteractionPair[] makeInteractionPairs(Frame f) {
-      int[] interactionIDs = null;
-      interactionIDs = new int[_columns.length];
+      int[] interactionIDs = new int[_columns.length];
       for (int i = 0; i < _columns.length; ++i) {
           interactionIDs[i] = f.find(_columns[i]);
           if( interactionIDs[i]==-1 ) {
