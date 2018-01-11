@@ -21,6 +21,7 @@ ARG R_VERSIONS='3.4.1,3.3.3'
 ARG PYTHON_VERSIONS='3.6,3.5,2.7'
 ARG JENKINS_UID='2117'
 ARG JENKINS_GID='2117'
+ARG XGBOOST_REVISION='9dfabf5'
 
 # Initialize apt sources
 RUN \
@@ -68,11 +69,12 @@ RUN \
   apt-get autoclean
 
 # Copy required scripts
-COPY scripts/install_R_version scripts/install_R_versions scripts/install_python_versions /usr/sbin/
+COPY scripts/install_R_version scripts/install_R_versions scripts/install_python_versions scripts/install_xgboost /usr/sbin/
 RUN \
   chmod 700 /usr/sbin/install_R_version && \
   chmod 700 /usr/sbin/install_R_versions && \
-  chmod 700 /usr/sbin/install_python_versions
+  chmod 700 /usr/sbin/install_python_versions && \
+  chmod 700 /usr/sbin/install_xgboost
 
 # Install Python
 RUN \
